@@ -42,11 +42,11 @@ Setiap service berjalan secara independen menggunakan Node.js, Express, MongoDB,
    ```
 
 3. **Buat file `.env` di masing-masing folder service**  
-   Contoh isi `.env`:
+    Contoh isi `.env`:
 
    ```env
    MONGO_URI=mongodb://123:123@ac-tptsjys-shard-00-00.vfdr0ej.mongodb.net:27017,ac-tptsjys-shard-00-01.vfdr0ej.mongodb.net:27017,ac-tptsjys-shard-00-02.vfdr0ej.mongodb.net:27017/?ssl=true&replicaSet=atlas-u4dd18-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0
-JWT_SECRET=rahasia_super_secret
+   JWT_SECRET=rahasia_super_secret
    PORT=3001 # (untuk companyA)
    PORT=3002 # (untuk companyB)
    PORT=3003 # (untuk Absense)
@@ -101,8 +101,8 @@ Setiap service menyediakan dokumentasi interaktif menggunakan Swagger. Berikut l
 - `GET    /api/absense/laporan-absense-karyawan/` – List absen dan cuti (auth) bagi karyawan yang login
 - `POST   /api/absense/create-cuti` – Ajukan cuti (auth)
 - `POST   /api/absense/create-sakit` – Ajukan cuti (auth)
-- `POST   /api/absense/admin-ApproveCutiSakit/:id` – admin approve cuti/sakit (auth)   
-- `POST   /api/absense/admin-rejectCutiSakit/:id` – admin reject cuti/sakit (auth)   
+- `POST   /api/absense/admin-ApproveCutiSakit/:id` – admin approve cuti/sakit (auth)
+- `POST   /api/absense/admin-rejectCutiSakit/:id` – admin reject cuti/sakit (auth)
 
 > **Catatan:** Endpoint lengkap dan detail parameter dapat dilihat di Swagger masing-masing service.
 
@@ -140,8 +140,64 @@ Pull request dan issue sangat terbuka untuk perbaikan atau pengembangan lebih la
 MIT License
 
 ## HASIL DOKUMENTASI
+
 ![image](https://github.com/user-attachments/assets/21b8fed8-3663-452f-92db-ae5ccb1f4f1f)
 
 ![image](https://github.com/user-attachments/assets/169ac3bb-cda8-49a3-8916-363a9a297790)
 
 ![image](https://github.com/user-attachments/assets/1f949000-2947-4d3a-ae28-4e4438ab51cb)
+
+---
+
+## Seeder: Data Admin & Karyawan Default
+
+Agar user baru bisa langsung login sebagai admin dan karyawan (baik Company A maupun Company B), sudah disediakan file `seeder.js` di masing-masing service. Jalankan seeder ini setelah setup database dan install dependencies.
+
+### Cara Kerja Seeder
+
+- Seeder **tidak akan menghapus data yang sudah ada** di database.
+- Seeder hanya akan menambah user default (admin & karyawan) **jika data tersebut belum ada** (berdasarkan username atau nip).
+- Jika user default sudah ada, maka tidak akan di-insert ulang.
+
+### Cara Menjalankan Seeder
+
+1. **Pastikan file `.env` sudah terisi dan MongoDB sudah berjalan.**
+2. **Jalankan perintah berikut di masing-masing folder service:**
+
+   ```powershell
+   # Untuk Company A Service
+   cd company-a-service
+   node seeder.js
+
+   # Untuk Company B Service
+   cd ../company-b-service
+   node seeder.js
+   ```
+
+3. **Jika berhasil, akan muncul pesan sukses di terminal.**
+
+### Data Default yang Akan Dimasukkan
+
+#### Company A Service
+
+- **Admin**
+  - username: `admin`
+  - password: `12345`
+  - nip: `A001`
+- **Karyawan**
+  - username: `karyawanA`
+  - password: `54321`
+  - nip: `A002`
+
+#### Company B Service
+
+- **Admin**
+  - username: `admin`
+  - password: `12345`
+  - nip: `B001`
+- **Karyawan**
+  - username: `karyawanB`
+  - password: `54321`
+  - nip: `B002`
+
+> Setelah seeder dijalankan, Anda bisa langsung login menggunakan data di atas melalui endpoint login di masing-masing service.

@@ -194,7 +194,7 @@ router.get('/', authAdmin, controller.getAllAbsenses);
 /**
  * @swagger
  * /api/absense/admin-ApproveCutiSakit/{id}:
- *   post:
+ *   put:
  *     summary: Approve pengajuan cuti atau sakit berdasarkan ID
  *     tags: [Admin]
  *     security:
@@ -240,12 +240,12 @@ router.get('/', authAdmin, controller.getAllAbsenses);
  *       500:
  *         description: Internal server error
  */
-router.post('/admin-ApproveCutiSakit/:id', authAdmin, controller.approveCuti);
+router.put('/admin-ApproveCutiSakit/:id', authAdmin, controller.approveCuti);
 
 /**
  * @swagger
  * /api/absense/admin-rejectCutiSakit/{id}:
- *   post:
+ *   put:
  *     summary: Reject pengajuan cuti atau sakit berdasarkan ID
  *     tags: [Admin]
  *     security:
@@ -291,7 +291,7 @@ router.post('/admin-ApproveCutiSakit/:id', authAdmin, controller.approveCuti);
  *       500:
  *         description: Internal server error
  */
-router.post('/admin-rejectCutiSakit/:id', authAdmin, controller.rejectCuti);
+router.put('/admin-rejectCutiSakit/:id', authAdmin, controller.rejectCuti);
 
 /**
  * @swagger
