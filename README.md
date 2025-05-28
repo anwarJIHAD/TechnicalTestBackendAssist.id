@@ -138,3 +138,10 @@ Pull request dan issue sangat terbuka untuk perbaikan atau pengembangan lebih la
 ## Lisensi
 
 MIT License
+
+## HASIL DOKUMENTASI
+![image](https://github.com/user-attachments/assets/21b8fed8-3663-452f-92db-ae5ccb1f4f1f)
+
+![image](https://github.com/user-attachments/assets/169ac3bb-cda8-49a3-8916-363a9a297790)
+
+![image](https://github.com/user-attachments/assets/1f949000-2947-4d3a-ae28-4e4438ab51cb)
