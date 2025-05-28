@@ -1,0 +1,210 @@
+openapi: 3.0.0
+info:
+  title: Company B Service API
+  version: 1.0.0
+  description: API untuk mengelola data karyawan Perusahaan B
+
+servers:
+  - url: http://localhost:3002
+
+paths:
+  /api/company-b/login-karyawan:
+    post:
+      summary: Login user
+      tags:
+        - Auth-Karyawan B
+      description: Endpoint untuk login dan mendapatkan JWT bagi karyawan B
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: "karyawanB"
+                password:
+                  type: string
+                  example: "54321"
+      responses:
+        '200':
+          description: Login berhasil dengan JWT
+        '401':
+          description: Kredensial salah
+        '500':
+          description: Server error
+
+  /api/company-b/login-admin:
+    post:
+      summary: Login admin
+      tags:
+        - Auth-admin
+      description: Endpoint untuk login dan mendapatkan JWT bagi admin karyawan B
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: "admin"
+                password:
+                  type: string
+                  example: "12345"
+      responses:
+        '200':
+          description: Login berhasil dengan JWT
+        '401':
+          description: Kredensial salah
+        '500':
+          description: Server error
+
+  /api/company-b/employees:
+    get:
+      summary: Ambil semua karyawan
+      tags:
+        - Karyawan B
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Daftar semua karyawan
+    post:
+      summary: Tambah karyawan baru
+      tags:
+        - Karyawan B
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nip
+                - nama
+                - username
+                - password
+                - email
+                - jabatan
+              properties:
+                nip:
+                  type: string
+                  example: "98007"
+                nama:
+                  type: string
+                  example: "Anwar"
+                username:
+                  type: string
+                  example: "anwar123"
+                password:
+                  type: string
+                  example: "12345"
+                email:
+                  type: string
+                  example: "anwar@gmail.com"
+                jabatan:
+                  type: string
+                  example: "karyawan biasa"
+                noHp:
+                  type: string
+                  example: "087627272"
+      responses:
+        '201':
+          description: Karyawan berhasil ditambahkan
+        '400':
+          description: Validasi gagal
+
+  /api/company-b/edit/{nip}:
+    put:
+      summary: Update karyawan berdasarkan ID
+      tags:
+        - Karyawan B
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: nip
+          in: path
+          required: true
+          description: NIP dari karyawan yang akan diperbarui
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nama:
+                  type: string
+                  example: "Anwar Update"
+                username:
+                  type: string
+                  example: "anwar123"
+                password:
+                  type: string
+                  example: "newpassword123"
+                email:
+                  type: string
+                  example: "anwar_updated@gmail.com"
+                jabatan:
+                  type: string
+                  example: "Manager"
+                noHp:
+                  type: string
+                  example: "0812121212"
+      responses:
+        '200':
+          description: Data karyawan berhasil diperbarui
+        '400':
+          description: Input tidak valid
+        '404':
+          description: Karyawan tidak ditemukan
+
+  /api/company-b/delete/{nip}:
+    delete:
+      summary: Hapus karyawan berdasarkan NIP
+      tags:
+        - Karyawan B
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: nip
+          in: path
+          required: true
+          description: NIP user yang akan dihapus
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully
+        '404':
+          description: User tidak ditemukan
+        '500':
+          description: Server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
