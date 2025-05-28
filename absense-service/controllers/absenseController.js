@@ -184,7 +184,12 @@ exports.getAllAbsenses = async (req, res) => {
   try {
     const absense = await Absense.find().sort({ date: -1 });
     const cuti = await Cuti.find().sort({ date: -1 });
-    res.json({ data_absen: absense, dataCuti_sakit: cuti });
+
+    // Pisahkan data cuti dan sakit
+    const dataCuti = cuti.filter((item) => item.status === 'cuti');
+    const dataSakit = cuti.filter((item) => item.status === 'sakit');
+
+    res.json({ data_absen: absense, dataCuti, dataSakit });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -237,15 +242,24 @@ exports.laporanAbsense = async (req, res) => {
 
       // Data absensi dan cuti/sakit pegawai ini
       const pegawaiAbsense = absenses.filter((a) => a.nip === nip);
-      const pegawaiCuti = cutis.filter((c) => c.nip === nip);
+      const pegawaiCuti = cutis.filter(
+        (c) => c.nip === nip && c.status == 'cuti'
+      );
+      const pegawaiSakit = cutis.filter(
+        (c) => c.nip === nip && c.status == 'sakit'
+      );
 
-      // Hitung jumlah telat
+      // Hitung jumlah hadir dan telat
+      const jumlah_hadir = pegawaiAbsense.filter(
+        (a) => a.status === 'hadir'
+      ).length;
       const jumlah_telat = pegawaiAbsense.filter(
         (a) => a.status === 'late'
       ).length;
 
       // Hitung jumlah cuti/sakit
       const jumlah_cuti = pegawaiCuti.length;
+      const jumlah_sakit = pegawaiSakit.length;
 
       // Hitung jumlah tidak masuk (tanggal tanpa absensi/cuti/sakit)
       const tanggalAdaRecord = [
@@ -253,6 +267,7 @@ exports.laporanAbsense = async (req, res) => {
           new Date(a.date).toISOString().slice(0, 10)
         ),
         ...pegawaiCuti.map((c) => new Date(c.date).toISOString().slice(0, 10)),
+        ...pegawaiSakit.map((c) => new Date(c.date).toISOString().slice(0, 10)),
       ];
       const tanggalTidakMasuk = dates.filter(
         (tgl) => !tanggalAdaRecord.includes(tgl)
@@ -263,9 +278,11 @@ exports.laporanAbsense = async (req, res) => {
         nip,
         nama,
         source,
+        jumlah_hadir,
         jumlah_telat,
         jumlah_tidak_masuk,
         jumlah_cuti,
+        jumlah_sakit,
       };
 
       if (source === 'companyA') {
@@ -324,15 +341,24 @@ exports.laporanAbsenseKaryawan = async (req, res) => {
 
       // Data absensi dan cuti/sakit pegawai ini
       const pegawaiAbsense = absenses.filter((a) => a.nip === nip);
-      const pegawaiCuti = cutis.filter((c) => c.nip === nip);
+      const pegawaiCuti = cutis.filter(
+        (c) => c.nip === nip && c.status == 'cuti'
+      );
+      const pegawaiSakit = cutis.filter(
+        (c) => c.nip === nip && c.status == 'sakit'
+      );
 
       // Hitung jumlah telat
       const jumlah_telat = pegawaiAbsense.filter(
         (a) => a.status === 'late'
       ).length;
+      const jumlah_hadir = pegawaiAbsense.filter(
+        (a) => a.status === 'hadir'
+      ).length;
 
       // Hitung jumlah cuti/sakit
       const jumlah_cuti = pegawaiCuti.length;
+      const jumlah_sakit = pegawaiSakit.length;
 
       // Hitung jumlah tidak masuk (tanggal tanpa absensi/cuti/sakit)
       const tanggalAdaRecord = [
@@ -350,9 +376,11 @@ exports.laporanAbsenseKaryawan = async (req, res) => {
         nip,
         nama,
         source,
+        jumlah_hadir,
         jumlah_telat,
         jumlah_tidak_masuk,
         jumlah_cuti,
+        jumlah_sakit,
       };
     });
 
