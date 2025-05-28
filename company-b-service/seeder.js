@@ -27,12 +27,16 @@ async function seed() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     for (const userData of seedUsers) {
-      const exists = await User.findOne({ $or: [ { username: userData.username }, { nip: userData.nip } ] });
+      const exists = await User.findOne({
+        $or: [{ username: userData.username }, { nip: userData.nip }],
+      });
       if (!exists) {
         await User.create(userData);
         console.log(`User default '${userData.username}' berhasil diinsert.`);
       } else {
-        console.log(`User default '${userData.username}' sudah ada, skip insert.`);
+        console.log(
+          `User default '${userData.username}' sudah ada, skip insert.`
+        );
       }
     }
     console.log('Seeder selesai untuk Company B!');

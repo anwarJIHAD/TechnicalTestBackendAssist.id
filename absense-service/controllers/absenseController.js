@@ -208,8 +208,12 @@ exports.laporanAbsense = async (req, res) => {
     }
 
     // Ambil semua user
-    const usersA = await CompanyAUser.find();
-    const usersB = await CompanyBUser.find();
+    const usersA = (await CompanyAUser.find()).filter(
+      (u) => u.username.toLowerCase() !== 'admin'
+    );
+    const usersB = (await CompanyBUser.find()).filter(
+      (u) => u.username.toLowerCase() !== 'admin'
+    );
     const allUsers = [...usersA, ...usersB];
 
     // Ambil data absensi dan cuti/sakit dalam rentang tanggal
@@ -220,46 +224,62 @@ exports.laporanAbsense = async (req, res) => {
       date: { $gte: start, $lte: end },
     });
 
-    // Buat laporan per pegawai
-    const laporan = allUsers.map((user) => {
+    // Buat laporan per pegawai, kelompokkan berdasarkan source
+    const laporanA = [];
+    const laporanB = [];
+
+    allUsers.forEach((user) => {
       const nip = user.nip;
       const nama = user.nama;
-      const source = usersA.find(u => u.nip === nip) ? 'companyA' : 'companyB';
+      const source = usersA.find((u) => u.nip === nip)
+        ? 'companyA'
+        : 'companyB';
 
       // Data absensi dan cuti/sakit pegawai ini
       const pegawaiAbsense = absenses.filter((a) => a.nip === nip);
       const pegawaiCuti = cutis.filter((c) => c.nip === nip);
 
       // Hitung jumlah telat
-      const jumlah_telat = pegawaiAbsense.filter((a) => a.status === 'late').length;
+      const jumlah_telat = pegawaiAbsense.filter(
+        (a) => a.status === 'late'
+      ).length;
 
       // Hitung jumlah cuti/sakit
       const jumlah_cuti = pegawaiCuti.length;
 
       // Hitung jumlah tidak masuk (tanggal tanpa absensi/cuti/sakit)
       const tanggalAdaRecord = [
-        ...pegawaiAbsense.map(a => new Date(a.date).toISOString().slice(0, 10)),
-        ...pegawaiCuti.map(c => new Date(c.date).toISOString().slice(0, 10))
+        ...pegawaiAbsense.map((a) =>
+          new Date(a.date).toISOString().slice(0, 10)
+        ),
+        ...pegawaiCuti.map((c) => new Date(c.date).toISOString().slice(0, 10)),
       ];
-      const tanggalTidakMasuk = dates.filter(tgl => !tanggalAdaRecord.includes(tgl));
+      const tanggalTidakMasuk = dates.filter(
+        (tgl) => !tanggalAdaRecord.includes(tgl)
+      );
       const jumlah_tidak_masuk = tanggalTidakMasuk.length;
 
-      return {
+      const laporanItem = {
         nip,
         nama,
         source,
         jumlah_telat,
         jumlah_tidak_masuk,
-        jumlah_cuti
+        jumlah_cuti,
       };
+
+      if (source === 'companyA') {
+        laporanA.push(laporanItem);
+      } else {
+        laporanB.push(laporanItem);
+      }
     });
 
-    res.json({ laporan });
+    res.json({ companyA: laporanA, companyB: laporanB });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 exports.laporanAbsenseKaryawan = async (req, res) => {
   const { startDate, endDate } = req.body;
@@ -280,8 +300,8 @@ exports.laporanAbsenseKaryawan = async (req, res) => {
     }
 
     // Ambil semua user
-    const usersA = await CompanyAUser.find({nip: nipUser});
-    const usersB = await CompanyBUser.find({nip: nipUser});
+    const usersA = await CompanyAUser.find({ nip: nipUser });
+    const usersB = await CompanyBUser.find({ nip: nipUser });
     const allUsers = [...usersA, ...usersB];
 
     // Ambil data absensi dan cuti/sakit dalam rentang tanggal
@@ -298,24 +318,32 @@ exports.laporanAbsenseKaryawan = async (req, res) => {
     const laporan = allUsers.map((user) => {
       const nip = user.nip;
       const nama = user.nama;
-      const source = usersA.find(u => u.nip === nip) ? 'companyA' : 'companyB';
+      const source = usersA.find((u) => u.nip === nip)
+        ? 'companyA'
+        : 'companyB';
 
       // Data absensi dan cuti/sakit pegawai ini
       const pegawaiAbsense = absenses.filter((a) => a.nip === nip);
       const pegawaiCuti = cutis.filter((c) => c.nip === nip);
 
       // Hitung jumlah telat
-      const jumlah_telat = pegawaiAbsense.filter((a) => a.status === 'late').length;
+      const jumlah_telat = pegawaiAbsense.filter(
+        (a) => a.status === 'late'
+      ).length;
 
       // Hitung jumlah cuti/sakit
       const jumlah_cuti = pegawaiCuti.length;
 
       // Hitung jumlah tidak masuk (tanggal tanpa absensi/cuti/sakit)
       const tanggalAdaRecord = [
-        ...pegawaiAbsense.map(a => new Date(a.date).toISOString().slice(0, 10)),
-        ...pegawaiCuti.map(c => new Date(c.date).toISOString().slice(0, 10))
+        ...pegawaiAbsense.map((a) =>
+          new Date(a.date).toISOString().slice(0, 10)
+        ),
+        ...pegawaiCuti.map((c) => new Date(c.date).toISOString().slice(0, 10)),
       ];
-      const tanggalTidakMasuk = dates.filter(tgl => !tanggalAdaRecord.includes(tgl));
+      const tanggalTidakMasuk = dates.filter(
+        (tgl) => !tanggalAdaRecord.includes(tgl)
+      );
       const jumlah_tidak_masuk = tanggalTidakMasuk.length;
 
       return {
@@ -324,7 +352,7 @@ exports.laporanAbsenseKaryawan = async (req, res) => {
         source,
         jumlah_telat,
         jumlah_tidak_masuk,
-        jumlah_cuti
+        jumlah_cuti,
       };
     });
 
